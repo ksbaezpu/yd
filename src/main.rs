@@ -1,11 +1,12 @@
+use regex::Error as RegexError;
 use regex::Regex;
 use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 use scraper::{Html, Selector};
 use std::env;
 
-fn is_chinese(text: &str) -> bool {
-    let re = Regex::new(r"[\u{4e00}-\u{9fff}]").unwrap();
-    re.is_match(text)
+fn is_chinese(text: &str) -> Result<bool, RegexError> {
+    let re = Regex::new(r"[\u{4e00}-\u{9fff}]")?;
+    Ok(re.is_match(text))
 }
 
 fn get_translation(word: &str) -> String {
@@ -33,7 +34,7 @@ fn get_translation(word: &str) -> String {
     let mut translations = Vec::new();
     let mut phonetics = Vec::new();
 
-    if is_chinese(word) {
+    if let Ok(true) = is_chinese(word) {
         let word_exp_selector = Selector::parse("li.word-exp-ce.mcols-layout").unwrap();
         let point_selector = Selector::parse("a.point").unwrap();
 
